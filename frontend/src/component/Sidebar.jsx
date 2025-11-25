@@ -73,17 +73,19 @@ export default function Sidebar({ active = "Dashboard" }) {
         <SidebarButton
           label="Dashboard"
           active={active === "Dashboard"}
-          href="/public"
+          href="/dashboard"
           icon={<FaHome className="w-5 h-5" />}
+        />
+        <SidebarButton
+          label="State Summary"
+          active={active === "StateSummary"}
+          href="/state-summary"
+          icon={<FaChartBar className="w-5 h-5" />}
         />
 
         <FeatureRow
           label="Map View"
           icon={<FaMapMarkedAlt className="w-5 h-5" />}
-        />
-        <FeatureRow
-          label="State Summary"
-          icon={<FaChartBar className="w-5 h-5" />}
         />
         <FeatureRow
           label="District Details"
