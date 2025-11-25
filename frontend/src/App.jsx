@@ -1,5 +1,6 @@
 import Dashboard from "./pages/Dashboard.jsx";
 import StateSummary from "./pages/StateSummary.jsx";
+import DataUpload from "./pages/DataUpload.jsx";
 import Sidebar from "./component/Sidebar.jsx";
 import {
   BrowserRouter as Router,
@@ -136,6 +137,7 @@ function App() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/state-summary" element={<StateSummary />} />
+          <Route path="/data-upload" element={<DataUpload />} />
         </Routes>
       </Layout>
     </Router>

@@ -83,18 +83,21 @@ export default function Sidebar({ active = "Dashboard" }) {
           icon={<FaChartBar className="w-5 h-5" />}
         />
 
-        <FeatureRow
-          label="Map View"
-          icon={<FaMapMarkedAlt className="w-5 h-5" />}
+        <SidebarButton
+          label="Data Upload"
+          active={active === "DataUpload"}
+          href="/data-upload"
+          icon={<FaUpload className="w-5 h-5" />}
         />
-        <FeatureRow
+
+        {/* <FeatureRow
           label="District Details"
           icon={<FaRegListAlt className="w-5 h-5" />}
         />
         <FeatureRow
           label="Data Upload"
           icon={<FaUpload className="w-5 h-5" />}
-        />
+        /> */}
         <FeatureRow
           label="Reports"
           icon={<FaFileDownload className="w-5 h-5" />}
