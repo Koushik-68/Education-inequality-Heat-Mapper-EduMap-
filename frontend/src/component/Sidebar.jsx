@@ -9,43 +9,67 @@ import {
 
 export default function Sidebar({ active = "Dashboard" }) {
   return (
-    <aside className="bg-white border-r border-slate-200 text-slate-900 w-72 min-h-screen flex flex-col py-8 px-5 shadow-sm">
-      {/* Brand / Emblem */}
-      {/* <div className="mb-10 flex items-center gap-3 px-1">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sky-600 to-indigo-700 flex items-center justify-center shadow-md">
+    <aside className="bg-white border-r border-slate-200 text-slate-900 w-72 min-h-screen flex flex-col py-6 px-4 shadow-none">
+      {/* Government emblem + Title */}
+      <div className="mb-6 flex items-center gap-3 px-1">
+        {/* emblem circle */}
+        <div
+          className="w-12 h-12 rounded-full flex items-center justify-center"
+          style={{ background: "linear-gradient(180deg,#06203a,#0b2b46)" }}
+          aria-hidden="true"
+        >
+          {/* simple, stylized emblem: laurel + wheel */}
           <svg
-            className="w-7 h-7 text-white"
-            fill="none"
-            stroke="currentColor"
+            width="28"
+            height="28"
             viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="text-white"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="white"
+              strokeWidth="0.8"
+              fill="none"
             />
+            <path
+              d="M12 6v12"
+              stroke="white"
+              strokeWidth="1"
+              strokeLinecap="round"
+            />
+            <path
+              d="M6 12h12"
+              stroke="white"
+              strokeWidth="1"
+              strokeLinecap="round"
+            />
+            <circle cx="12" cy="12" r="2.2" fill="white" />
           </svg>
-        </div> */}
+        </div>
 
-      {/* <div>
-          <span className="font-semibold text-base text-slate-900 tracking-wide">
-            PublicChain Portal
+        <div>
+          <span className="font-semibold text-base text-[#06203a] tracking-wide">
+            Government Portal
           </span>
           <p className="text-[11px] text-slate-500">
-            Citizen Transparency Dashboard
+            Citizen Dashboard — Public View
           </p>
-        </div> */}
-      {/* </div> */}
-      {/* 
-      <div className="px-1 mb-4">
-        <span className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">
-          Navigation
-        </span>
-      </div> */}
+        </div>
+      </div>
 
-      <nav className="flex flex-col gap-2">
-        {/* Active page (real link) */}
+      {/* thin saffron accent bar */}
+      <div
+        className="h-[4px] w-full rounded-md mb-4"
+        style={{
+          background: "linear-gradient(90deg,#ff9933,#ffffff 50%,#128807)",
+        }}
+      />
+
+      <nav className="flex flex-col gap-2" aria-label="Main navigation">
         <SidebarButton
           label="Dashboard"
           active={active === "Dashboard"}
@@ -53,7 +77,6 @@ export default function Sidebar({ active = "Dashboard" }) {
           icon={<FaHome className="w-5 h-5" />}
         />
 
-        {/* Feature rows (not links) */}
         <FeatureRow
           label="Map View"
           icon={<FaMapMarkedAlt className="w-5 h-5" />}
@@ -76,8 +99,16 @@ export default function Sidebar({ active = "Dashboard" }) {
         />
       </nav>
 
-      <div className="mt-auto pt-8 px-1 text-[11px] text-slate-500 border-t border-slate-200">
-        Citizen View • Read-only
+      <div className="mt-auto pt-6 px-1 text-[12px] text-slate-600 border-t border-slate-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-[11px] text-slate-500">Access</div>
+            <div className="text-sm font-medium text-[#06203a]">
+              Citizen • Read-only
+            </div>
+          </div>
+          <div className="text-xs text-slate-400">v1.0</div>
+        </div>
       </div>
     </aside>
   );
@@ -87,23 +118,23 @@ function SidebarButton({ label, active, href, icon }) {
   return (
     <a
       href={href}
-      className={`flex items-center justify-between px-5 py-4 rounded-xl text-base font-medium transition-all duration-150
+      className={`flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150
       ${
         active
-          ? "bg-slate-900 text-white shadow-md scale-[1.03]"
+          ? "bg-[#06203a] text-white shadow-sm"
           : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
       }`}
+      aria-current={active ? "page" : undefined}
     >
-      <span className="flex items-center gap-4">
-        <span className={`${active ? "text-emerald-300" : "text-slate-500"}`}>
+      <span className="flex items-center gap-3">
+        <span className={`${active ? "text-white" : "text-slate-500"}`}>
           {icon}
         </span>
-
         {label}
       </span>
 
       {active && (
-        <span className="text-[10px] uppercase tracking-wider text-emerald-300">
+        <span className="text-[10px] uppercase tracking-wider text-slate-200">
           Active
         </span>
       )}
@@ -112,18 +143,19 @@ function SidebarButton({ label, active, href, icon }) {
 }
 
 function FeatureRow({ label, icon }) {
-  // Render as non-clickable row but keep the same visual style as non-active buttons
+  // Non-clickable row, kept visually consistent
   return (
     <div
-      className={`flex items-center justify-between px-5 py-4 rounded-xl text-base font-medium text-slate-700 transition-all duration-150 hover:bg-slate-100`}
+      className={`flex items-center justify-between px-4 py-3 rounded-lg text-sm font-medium text-slate-700 transition-all duration-150 hover:bg-slate-100`}
       role="button"
       aria-label={label}
+      tabIndex={0}
+      onKeyDown={() => {}}
     >
-      <span className="flex items-center gap-4">
+      <span className="flex items-center gap-3">
         <span className="text-slate-500">{icon}</span>
         {label}
       </span>
-      {/* small status label placeholder */}
       <span className="text-[11px] text-slate-400">View</span>
     </div>
   );
