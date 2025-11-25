@@ -1,0 +1,158 @@
+{
+  "states": {
+    "AP": { "name": "Andhra Pradesh", "score": 1 },
+    "AR": { "name": "Arunachal Pradesh", "score": 0 },
+    "AS": { "name": "Assam", "score": 2 },
+    "BR": { "name": "Bihar", "score": 2 },
+    "CT": { "name": "Chhattisgarh", "score": 1 },
+    "GA": { "name": "Goa", "score": 0 },
+    "GJ": { "name": "Gujarat", "score": 1 },
+    "HR": { "name": "Haryana", "score": 1 },
+    "HP": { "name": "Himachal Pradesh", "score": 0 },
+    "JH": { "name": "Jharkhand", "score": 2 },
+    "KA": { "name": "Karnataka", "score": 1 },
+    "KL": { "name": "Kerala", "score": 0 },
+    "MP": { "name": "Madhya Pradesh", "score": 2 },
+    "MH": { "name": "Maharashtra", "score": 1 },
+    "MN": { "name": "Manipur", "score": 1 },
+    "ML": { "name": "Meghalaya", "score": 1 },
+    "MZ": { "name": "Mizoram", "score": 0 },
+    "NL": { "name": "Nagaland", "score": 1 },
+    "OD": { "name": "Odisha", "score": 2 },
+    "PB": { "name": "Punjab", "score": 1 },
+    "RJ": { "name": "Rajasthan", "score": 2 },
+    "SK": { "name": "Sikkim", "score": 0 },
+    "TN": { "name": "Tamil Nadu", "score": 1 },
+    "TS": { "name": "Telangana", "score": 1 },
+    "TR": { "name": "Tripura", "score": 1 },
+    "UP": { "name": "Uttar Pradesh", "score": 2 },
+    "UK": { "name": "Uttarakhand", "score": 1 },
+    "WB": { "name": "West Bengal", "score": 2 },
+    "DL": { "name": "Delhi", "score": 1 },
+    "JK": { "name": "Jammu & Kashmir", "score": 1 },
+    "LA": { "name": "Ladakh", "score": 0 },
+    "PY": { "name": "Puducherry", "score": 0 }
+  },
+
+  "districts": {
+    "KA": [
+      {
+        "id": "KA-BLR",
+        "name": "Bengaluru Urban",
+        "lat": 12.9716,
+        "lng": 77.5946,
+        "score": 1
+      },
+      {
+        "id": "KA-MYS",
+        "name": "Mysuru",
+        "lat": 12.2958,
+        "lng": 76.6394,
+        "score": 0
+      },
+      {
+        "id": "KA-BLK",
+        "name": "Ballari",
+        "lat": 15.1394,
+        "lng": 76.9214,
+        "score": 2
+      }
+    ],
+
+    "MH": [
+      {
+        "id": "MH-MUM",
+        "name": "Mumbai",
+        "lat": 19.076,
+        "lng": 72.8777,
+        "score": 2
+      },
+      {
+        "id": "MH-PUN",
+        "name": "Pune",
+        "lat": 18.5204,
+        "lng": 73.8567,
+        "score": 1
+      },
+      {
+        "id": "MH-NAS",
+        "name": "Nashik",
+        "lat": 19.9975,
+        "lng": 73.7898,
+        "score": 1
+      }
+    ],
+
+    "TN": [
+      {
+        "id": "TN-CHN",
+        "name": "Chennai",
+        "lat": 13.0827,
+        "lng": 80.2707,
+        "score": 1
+      },
+      {
+        "id": "TN-CBE",
+        "name": "Coimbatore",
+        "lat": 11.0168,
+        "lng": 76.9558,
+        "score": 0
+      },
+      {
+        "id": "TN-MDU",
+        "name": "Madurai",
+        "lat": 9.9252,
+        "lng": 78.1198,
+        "score": 1
+      }
+    ],
+
+    "UP": [
+      {
+        "id": "UP-LKO",
+        "name": "Lucknow",
+        "lat": 26.8467,
+        "lng": 80.9462,
+        "score": 2
+      },
+      {
+        "id": "UP-KNP",
+        "name": "Kanpur",
+        "lat": 26.4499,
+        "lng": 80.3319,
+        "score": 2
+      },
+      {
+        "id": "UP-VNS",
+        "name": "Varanasi",
+        "lat": 25.3176,
+        "lng": 82.9739,
+        "score": 1
+      }
+    ],
+
+    "RJ": [
+      {
+        "id": "RJ-JPR",
+        "name": "Jaipur",
+        "lat": 26.9124,
+        "lng": 75.7873,
+        "score": 1
+      },
+      {
+        "id": "RJ-JSL",
+        "name": "Jaisalmer",
+        "lat": 26.9157,
+        "lng": 70.9083,
+        "score": 2
+      },
+      {
+        "id": "RJ-UDR",
+        "name": "Udaipur",
+        "lat": 24.5854,
+        "lng": 73.7125,
+        "score": 1
+      }
+    ]
+  }
+}
