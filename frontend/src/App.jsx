@@ -12,12 +12,21 @@ import {
 
 function Layout({ children }) {
   const location = useLocation();
-  // Determine active sidebar item
+
+  // ✅ Determine active sidebar item (FIXED)
   let active = "Dashboard";
-  if (location.pathname.startsWith("/state-summary")) active = "StateSummary";
-  // Uniform header style
+
+  if (location.pathname.startsWith("/state-summary")) {
+    active = "StateSummary";
+  } else if (location.pathname.startsWith("/data-upload")) {
+    active = "DataUpload";
+  } else if (location.pathname.startsWith("/dashboard")) {
+    active = "Dashboard";
+  }
+
   const HEADER_HEIGHT = 78;
   const SIDEBAR_WIDTH = 300;
+
   const containerStyle = {
     display: "flex",
     height: `calc(100vh - ${HEADER_HEIGHT}px)`,
@@ -25,8 +34,10 @@ function Layout({ children }) {
     overflow: "hidden",
     background: "#f6fafc",
   };
+
   return (
     <div style={{ minHeight: "100vh", background: "#f6fafc" }}>
+      {/* ✅ YOUR HEADER — UNTOUCHED */}
       <header
         style={{
           height: HEADER_HEIGHT,
@@ -71,6 +82,7 @@ function Layout({ children }) {
             </div>
           </div>
         </div>
+
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <button
             style={{
@@ -101,6 +113,8 @@ function Layout({ children }) {
           </button>
         </div>
       </header>
+
+      {/* ✅ BODY WITH SIDEBAR */}
       <div style={containerStyle}>
         <div
           style={{
@@ -112,6 +126,7 @@ function Layout({ children }) {
         >
           <Sidebar active={active} />
         </div>
+
         <main
           style={{
             flexGrow: 1,

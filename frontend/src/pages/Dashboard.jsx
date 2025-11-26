@@ -131,6 +131,9 @@ export default function Dashboard() {
   const [mapBounds, setMapBounds] = useState(null);
   const [resetMapView, setResetMapView] = useState(false);
 
+  // NEW: modal open/close for zoomed state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // initial map center/zoom (slightly zoomed out)
   const INITIAL_CENTER = [22, 79];
   const INITIAL_ZOOM = 4.3; // more of the country visible by default
@@ -227,6 +230,8 @@ export default function Dashboard() {
       const bounds = layer.getBounds ? layer.getBounds() : null;
       setSelectedState(key);
       setMapBounds(bounds);
+      // NEW: open the popup modal when a state is clicked
+      setIsModalOpen(true);
     });
 
     layer.on({
@@ -245,6 +250,26 @@ export default function Dashboard() {
     selectedState && districtData && districtData[selectedState]
       ? districtData[selectedState]
       : [];
+
+  // center for modal map (focus on selected state bounds)
+  const modalCenter =
+    mapBounds && mapBounds.getCenter
+      ? [mapBounds.getCenter().lat, mapBounds.getCenter().lng]
+      : INITIAL_CENTER;
+
+  // only the selected state geometry for modal (zoomed view)
+  let selectedGeo = null;
+  if (
+    geo &&
+    geo.type === "FeatureCollection" &&
+    Array.isArray(geo.features) &&
+    selectedState
+  ) {
+    const features = geo.features.filter(
+      (f) => getStateKeyFromFeature(f.properties, stateData) === selectedState
+    );
+    selectedGeo = { ...geo, features };
+  }
 
   return (
     <>
@@ -578,6 +603,94 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+
+      {/* MODAL: zoomed-in state map */}
+      {isModalOpen && (
+        <div
+          // ⬇️ click on the dark background = close modal
+          onClick={() => setIsModalOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(15,23,42,0.45)",
+            zIndex: 9999,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 16,
+          }}
+        >
+          <div
+            // ⬇️ stop click from bubbling, so clicking inside does NOT close
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#ffffff",
+              borderRadius: 10,
+              width: "80%",
+              maxWidth: 900,
+              height: "70vh",
+              boxShadow: "0 12px 40px rgba(15,23,42,0.35)",
+              position: "relative",
+              border: `1px solid ${BORDER_GREY}`,
+              overflow: "hidden",
+            }}
+          >
+            <button
+              onClick={() => setIsModalOpen(false)}
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 12,
+                zIndex: 10,
+                border: "none",
+                background: "#e5e7eb",
+                borderRadius: 999,
+                padding: "4px 10px",
+                cursor: "pointer",
+                fontSize: 12,
+                fontWeight: 700,
+                color: "#111827",
+              }}
+            >
+              Close
+            </button>
+            <div style={{ width: "100%", height: "100%" }}>
+              <MapContainer
+                center={modalCenter}
+                zoom={6}
+                style={{ width: "100%", height: "100%" }}
+                scrollWheelZoom={true}
+              >
+                <ChangeMapView
+                  bounds={mapBounds || undefined}
+                  center={modalCenter}
+                  zoom={6}
+                  duration={0.9}
+                />
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution="&copy; OpenStreetMap contributors"
+                />
+                {geo ? (
+                  <GeoJSON
+                    data={selectedGeo || geo}
+                    style={stateStyle}
+                    onEachFeature={onEachState}
+                  />
+                ) : null}
+                {districtMarkers.map((d) => (
+                  <Marker key={d.id} position={[d.lat, d.lng]}>
+                    <Popup>
+                      <div style={{ fontWeight: 700 }}>{d.name}</div>
+                      <div>Score: {d.score}</div>
+                    </Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Loading / Error toasts */}
       {loading && (
