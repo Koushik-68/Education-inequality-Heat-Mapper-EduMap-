@@ -21,6 +21,7 @@ const IconHome = (props) => (
     <polyline points="9 22 9 12 15 12 15 22" />
   </svg>
 );
+
 const IconBarChart = (props) => (
   <svg
     {...props}
@@ -40,6 +41,7 @@ const IconBarChart = (props) => (
     <line x1="6" x2="6" y1="20" y2="16" />
   </svg>
 );
+
 const IconMap = (props) => (
   <svg
     {...props}
@@ -59,6 +61,7 @@ const IconMap = (props) => (
     <line x1="15" x2="15" y1="6" y2="21" />
   </svg>
 );
+
 const IconList = (props) => (
   <svg
     {...props}
@@ -79,6 +82,7 @@ const IconList = (props) => (
     <path d="m13 5h8" />
   </svg>
 );
+
 const IconUpload = (props) => (
   <svg
     {...props}
@@ -98,6 +102,7 @@ const IconUpload = (props) => (
     <line x1="12" x2="12" y1="3" y2="15" />
   </svg>
 );
+
 const IconDownload = (props) => (
   <svg
     {...props}
@@ -118,6 +123,27 @@ const IconDownload = (props) => (
   </svg>
 );
 
+/** 🔹 NEW: Volunteer icon (simple hand/heart style) */
+const IconVolunteer = (props) => (
+  <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="lucide lucide-hand-heart"
+  >
+    <path d="M11 21H7.5a2.5 2.5 0 0 1 0-5H9" />
+    <path d="M15 21h2.5a2.5 2.5 0 0 0 0-5H15l-2-3" />
+    <path d="M17.5 3.5a2.5 2.5 0 0 0-3.5 0L13 4.5l-.9-.9a2.5 2.5 0 0 0-3.5 3.5l.9.9L13 12l3.5-3.5.9-.9a2.5 2.5 0 0 0-3.5-3.5z" />
+  </svg>
+);
+
 // --- Components combined into a single file ---
 
 function SidebarButton({ label, active, href, icon }) {
@@ -130,15 +156,13 @@ function SidebarButton({ label, active, href, icon }) {
       className={`${baseClasses} 
       ${
         active
-          ? "bg-[#06203a] text-white shadow-2xl shadow-[#06203a]/40 transform scale-[1.02] ring-2 ring-[#ff9933]/50" // Richer active style
-          : "text-slate-700 hover:bg-slate-100/70 hover:text-[#06203a] hover:shadow-inner" // Subtle inactive hover
+          ? "bg-[#06203a] text-white shadow-2xl shadow-[#06203a]/40 transform scale-[1.02] ring-2 ring-[#ff9933]/50"
+          : "text-slate-700 hover:bg-slate-100/70 hover:text-[#06203a] hover:shadow-inner"
       }`}
       aria-current={active ? "page" : undefined}
     >
       <span className="flex items-center gap-3">
-        {/* Icon color inversion for better contrast, passing size class */}
         <span className={`w-5 h-5 ${active ? "text-white" : "text-slate-500"}`}>
-          {/* We must clone the element to pass the class names down */}
           {React.cloneElement(icon, { className: "w-5 h-5" })}
         </span>
         {label}
@@ -146,7 +170,7 @@ function SidebarButton({ label, active, href, icon }) {
 
       {active && (
         <span className="text-[10px] uppercase tracking-widest font-extrabold text-[#ff9933]">
-          LIVE
+          ACTIVE
         </span>
       )}
     </a>
@@ -154,7 +178,6 @@ function SidebarButton({ label, active, href, icon }) {
 }
 
 function FeatureRow({ label, icon }) {
-  // Non-clickable row with a "View" placeholder text
   return (
     <div
       className={`flex items-center justify-between px-5 py-3.5 rounded-xl text-sm font-semibold text-slate-700 transition-all duration-300 ease-in-out cursor-pointer hover:bg-slate-100/70 hover:text-[#06203a]`}
@@ -165,12 +188,10 @@ function FeatureRow({ label, icon }) {
     >
       <span className="flex items-center gap-3">
         <span className="text-slate-500 w-5 h-5">
-          {/* We must clone the element to pass the class names down */}
           {React.cloneElement(icon, { className: "w-5 h-5" })}
         </span>
         {label}
       </span>
-      {/* Subtle, refined secondary action text */}
       <span className="text-[11px] text-slate-400 font-normal">Details</span>
     </div>
   );
@@ -178,11 +199,9 @@ function FeatureRow({ label, icon }) {
 
 export default function Sidebar({ active = "Dashboard" }) {
   return (
-    // Updated background to soft grey with subtle shadow
     <aside className="bg-gray-50 border-r border-slate-200 text-slate-900 w-72 min-h-screen flex flex-col py-8 px-5 shadow-2xl shadow-slate-300/50">
       {/* Government emblem + Title */}
       <div className="mb-8 flex items-center gap-4 px-1 pb-4 border-b border-slate-100">
-        {/* Emblem circle with richer gradient */}
         <div
           className="w-14 h-14 rounded-full flex items-center justify-center p-1"
           style={{
@@ -191,7 +210,6 @@ export default function Sidebar({ active = "Dashboard" }) {
           }}
           aria-hidden="true"
         >
-          {/* simple, stylized emblem: refined SVG */}
           <svg
             width="32"
             height="32"
@@ -200,7 +218,6 @@ export default function Sidebar({ active = "Dashboard" }) {
             xmlns="http://www.w3.org/2000/svg"
             className="text-white"
           >
-            {/* Outer Circle (more stylized) */}
             <path
               d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zM12 4v16M4 12h16"
               stroke="white"
@@ -208,8 +225,7 @@ export default function Sidebar({ active = "Dashboard" }) {
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            <circle cx="12" cy="12" r="3.5" fill="#ff9933" />{" "}
-            {/* Saffron center accent */}
+            <circle cx="12" cy="12" r="3.5" fill="#ff9933" />
           </svg>
         </div>
 
@@ -221,7 +237,6 @@ export default function Sidebar({ active = "Dashboard" }) {
         </div>
       </div>
 
-      {/* thicker saffron accent bar */}
       <div
         className="h-[6px] w-full rounded-full mb-6 shadow-md"
         style={{
@@ -237,7 +252,6 @@ export default function Sidebar({ active = "Dashboard" }) {
           href="/dashboard"
           icon={<IconHome />}
         />
-        {/* New item for Map/GIS data */}
         <SidebarButton
           label="State Summary"
           active={active === "StateSummary"}
@@ -250,21 +264,19 @@ export default function Sidebar({ active = "Dashboard" }) {
           href="/data-upload"
           icon={<IconUpload />}
         />
-
-        {/* Feature Rows (non-clickable) */}
-        {/* <FeatureRow label="District Details" icon={<IconList />} />
-
+        {/* 🔹 Volunteer item using IconVolunteer */}
         <SidebarButton
-          label="Data Upload"
-          active={active === "DataUpload"}
-          href="#data-upload"
-          icon={<IconUpload />} */}
-        {/* />
+          label="Volunteer"
+          active={active === "Volunteer"}
+          href="/volunteer"
+          icon={<IconVolunteer />}
+        />
 
+        {/* Example feature row if you re-enable later */}
+        {/* <FeatureRow label="District Details" icon={<IconList />} />
         <FeatureRow label="Reports Download" icon={<IconDownload />} /> */}
       </nav>
 
-      {/* Footer / Status Area */}
       <div className="mt-auto pt-6 px-1 text-[12px] text-slate-600 border-t border-slate-200">
         <div className="flex items-center justify-between">
           <div>

@@ -1,6 +1,7 @@
 import Dashboard from "./pages/Dashboard.jsx";
 import StateSummary from "./pages/StateSummary.jsx";
 import DataUpload from "./pages/DataUpload.jsx";
+import Volunteer from "./pages/Volunteer.jsx";
 import Sidebar from "./component/Sidebar.jsx";
 import {
   BrowserRouter as Router,
@@ -22,8 +23,9 @@ function Layout({ children }) {
     active = "DataUpload";
   } else if (location.pathname.startsWith("/dashboard")) {
     active = "Dashboard";
+  } else if (location.pathname.startsWith("/volunteer")) {
+    active = "Volunteer";
   }
-
   const HEADER_HEIGHT = 78;
   const SIDEBAR_WIDTH = 300;
 
@@ -153,6 +155,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/state-summary" element={<StateSummary />} />
           <Route path="/data-upload" element={<DataUpload />} />
+          <Route path="/volunteer" element={<Volunteer />} />
         </Routes>
       </Layout>
     </Router>
