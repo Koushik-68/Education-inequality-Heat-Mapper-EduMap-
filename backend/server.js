@@ -7,10 +7,13 @@ const multer = require("multer");
 const axios = require("axios");
 const { feature: topoFeature } = require("topojson-client");
 const { parse: parseCsv } = require("csv-parse/sync");
+const mlRouter = require("./routes/ml");
+
 require("dotenv").config({ path: path.resolve(__dirname, "./config.env") });
 
 const connectDatabase = require("./db");
 const State = require("./models/State");
+const predictRouter = require("./routes/mlProxy");
 
 /* -------------------------
    App Init
@@ -37,7 +40,11 @@ app.use(cookieParser());
 const FRONTEND_ROOT = path.resolve(__dirname, "../frontend/public");
 
 app.use("/api", express.static(path.join(FRONTEND_ROOT, "api"))); // topojson
-app.use("/data", express.static(path.join(FRONTEND_ROOT, "data"))); // data.json
+app.use("/data", express.static(path.join(FRONTEND_ROOT, "data")));
+// app.use("/api/ml", predictRouter);
+app.use("/api/ml", mlRouter);
+
+// data.json
 
 /* -------------------------
    ML ROUTER (FIXED)
@@ -46,13 +53,22 @@ const ML_API_URL = "http://localhost:8000/predict";
 
 app.post("/api/ml/predict-district", async (req, res) => {
   try {
+    console.log("[ML Proxy] Forwarding payload:", req.body);
     const response = await axios.post(ML_API_URL, req.body, {
-      timeout: 5000,
+      timeout: 10000,
+      headers: { "Content-Type": "application/json" },
     });
-    res.json(response.data);
+    const data = response.data || {};
+    // Attach proxy-forwarded payload for debugging
+    data.debug = {
+      ...(data.debug || {}),
+      proxy_forwarded: req.body,
+    };
+    res.json(data);
   } catch (error) {
-    console.error("ML service error:", error.message);
-    res.status(500).json({ error: "ML prediction failed" });
+    const detail = error?.response?.data || error?.message || "Unknown error";
+    console.error("[ML Proxy] Error:", detail);
+    res.status(500).json({ error: "ML prediction failed", detail });
   }
 });
 
@@ -121,7 +137,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
                 score: Number.isFinite(score) ? score : 0,
               },
             },
-            { upsert: true }
+            { upsert: true },
           );
           upserts++;
         }
@@ -152,7 +168,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
 
       const outPath = path.join(
         uploadsDir,
-        originalName.replace(/\.topojson$/i, "") + ".geojson"
+        originalName.replace(/\.topojson$/i, "") + ".geojson",
       );
 
       fs.writeFileSync(outPath, JSON.stringify(geoJson));

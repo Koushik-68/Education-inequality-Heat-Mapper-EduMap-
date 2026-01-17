@@ -1,0 +1,182 @@
+{
+  "Bengaluru Urban": {
+    "population_lakhs": 120.0,
+    "literacy_rate": 89.0,
+    "pupil_teacher_ratio": 22,
+    "teacher_difference": 8
+  },
+  "Bengaluru Rural": {
+    "population_lakhs": 9.0,
+    "literacy_rate": 77.0,
+    "pupil_teacher_ratio": 27,
+    "teacher_difference": 12
+  },
+  "Mysuru": {
+    "population_lakhs": 30.0,
+    "literacy_rate": 74.0,
+    "pupil_teacher_ratio": 26,
+    "teacher_difference": 10
+  },
+  "Mandya": {
+    "population_lakhs": 18.0,
+    "literacy_rate": 70.0,
+    "pupil_teacher_ratio": 28,
+    "teacher_difference": 14
+  },
+  "Hassan": {
+    "population_lakhs": 18.0,
+    "literacy_rate": 78.0,
+    "pupil_teacher_ratio": 25,
+    "teacher_difference": 9
+  },
+  "Chikkamagaluru": {
+    "population_lakhs": 11.8,
+    "literacy_rate": 80.0,
+    "pupil_teacher_ratio": 24,
+    "teacher_difference": 7
+  },
+  "Shivamogga": {
+    "population_lakhs": 17.0,
+    "literacy_rate": 78.0,
+    "pupil_teacher_ratio": 25,
+    "teacher_difference": 10
+  },
+  "Udupi": {
+    "population_lakhs": 11.7,
+    "literacy_rate": 86.0,
+    "pupil_teacher_ratio": 22,
+    "teacher_difference": 6
+  },
+  "Dakshina Kannada": {
+    "population_lakhs": 21.5,
+    "literacy_rate": 88.0,
+    "pupil_teacher_ratio": 22,
+    "teacher_difference": 6
+  },
+  "Kodagu": {
+    "population_lakhs": 5.7,
+    "literacy_rate": 82.0,
+    "pupil_teacher_ratio": 23,
+    "teacher_difference": 5
+  },
+  "Belagavi": {
+    "population_lakhs": 47.8,
+    "literacy_rate": 73.0,
+    "pupil_teacher_ratio": 29,
+    "teacher_difference": 16
+  },
+  "Bagalkot": {
+    "population_lakhs": 18.9,
+    "literacy_rate": 63.0,
+    "pupil_teacher_ratio": 31,
+    "teacher_difference": 18
+  },
+  "Vijayapura": {
+    "population_lakhs": 21.8,
+    "literacy_rate": 68.0,
+    "pupil_teacher_ratio": 30,
+    "teacher_difference": 17
+  },
+  "Dharwad": {
+    "population_lakhs": 19.0,
+    "literacy_rate": 75.0,
+    "pupil_teacher_ratio": 26,
+    "teacher_difference": 11
+  },
+  "Gadag": {
+    "population_lakhs": 10.6,
+    "literacy_rate": 71.0,
+    "pupil_teacher_ratio": 28,
+    "teacher_difference": 12
+  },
+  "Haveri": {
+    "population_lakhs": 16.0,
+    "literacy_rate": 74.0,
+    "pupil_teacher_ratio": 27,
+    "teacher_difference": 12
+  },
+  "Uttara Kannada": {
+    "population_lakhs": 15.0,
+    "literacy_rate": 76.0,
+    "pupil_teacher_ratio": 26,
+    "teacher_difference": 10
+  },
+  "Ballari": {
+    "population_lakhs": 25.0,
+    "literacy_rate": 68.0,
+    "pupil_teacher_ratio": 32,
+    "teacher_difference": 18
+  },
+  "Vijayanagara": {
+    "population_lakhs": 12.0,
+    "literacy_rate": 67.0,
+    "pupil_teacher_ratio": 31,
+    "teacher_difference": 17
+  },
+  "Koppal": {
+    "population_lakhs": 16.0,
+    "literacy_rate": 69.0,
+    "pupil_teacher_ratio": 30,
+    "teacher_difference": 16
+  },
+  "Raichur": {
+    "population_lakhs": 20.9,
+    "literacy_rate": 59.0,
+    "pupil_teacher_ratio": 33,
+    "teacher_difference": 20
+  },
+  "Kalaburagi": {
+    "population_lakhs": 26.0,
+    "literacy_rate": 65.0,
+    "pupil_teacher_ratio": 32,
+    "teacher_difference": 19
+  },
+  "Yadgir": {
+    "population_lakhs": 12.0,
+    "literacy_rate": 52.0,
+    "pupil_teacher_ratio": 34,
+    "teacher_difference": 22
+  },
+  "Bidar": {
+    "population_lakhs": 17.0,
+    "literacy_rate": 70.0,
+    "pupil_teacher_ratio": 29,
+    "teacher_difference": 15
+  },
+  "Chitradurga": {
+    "population_lakhs": 16.5,
+    "literacy_rate": 72.0,
+    "pupil_teacher_ratio": 28,
+    "teacher_difference": 13
+  },
+  "Davanagere": {
+    "population_lakhs": 20.0,
+    "literacy_rate": 76.0,
+    "pupil_teacher_ratio": 27,
+    "teacher_difference": 12
+  },
+  "Tumakuru": {
+    "population_lakhs": 27.0,
+    "literacy_rate": 76.0,
+    "pupil_teacher_ratio": 26,
+    "teacher_difference": 12
+  },
+  "Kolar": {
+    "population_lakhs": 15.4,
+    "literacy_rate": 74.0,
+    "pupil_teacher_ratio": 27,
+    "teacher_difference": 11
+  },
+  "Chikkaballapur": {
+    "population_lakhs": 12.5,
+    "literacy_rate": 73.0,
+    "pupil_teacher_ratio": 27,
+    "teacher_difference": 11
+  },
+  "Ramanagara": {
+    "population_lakhs": 10.8,
+    "literacy_rate": 76.0,
+    "pupil_teacher_ratio": 26,
+    "teacher_difference": 10
+  }
+}

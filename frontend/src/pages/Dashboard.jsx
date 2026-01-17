@@ -30,6 +30,14 @@ const getColorForScore = (score) => {
   return COLORS.default;
 };
 
+// RVCE color scale (simplified 4 bins) for EII (0..1)
+const getColor = (val) => {
+  if (val >= 0.75) return "#006400"; // Excellent (Dark Green)
+  if (val >= 0.5) return "#FFD700"; // Moderate (Yellow)
+  if (val >= 0.25) return "#FF8C00"; // Poor (Orange)
+  return "#8B0000"; // Critical (Red)
+};
+
 /* -------------------------
    Leaflet marker fix
 ------------------------- */
@@ -158,9 +166,11 @@ export default function Dashboard() {
   const districtStyle = (feature) => {
     const name = feature?.properties?.district;
     const score = districtData[name]?.score ?? -1;
+    const eii = districtData[name]?.EII;
 
     return {
-      fillColor: getColorForScore(score),
+      fillColor:
+        typeof eii === "number" ? getColor(eii) : getColorForScore(score),
       color: "#cbd5e1",
       weight: 1,
       fillOpacity: 0.95,
@@ -196,11 +206,17 @@ export default function Dashboard() {
                 style={districtStyle}
                 onEachFeature={(feature, layer) => {
                   const name = feature.properties?.district;
-                  const score = districtData[name]?.score ?? "No data";
+                  const score = districtData[name]?.score;
+                  const eii = districtData[name]?.EII;
 
-                  layer.bindPopup(
-                    `<b>${name}</b><br/>Inequality Score: ${score}`
-                  );
+                  const popupText =
+                    typeof eii === "number"
+                      ? `<b>${name}</b><br/>EII: ${eii}`
+                      : `<b>${name}</b><br/>Inequality Score: ${
+                          score ?? "No data"
+                        }`;
+
+                  layer.bindPopup(popupText);
 
                   layer.on({
                     click: () => setDistrictBounds(layer.getBounds()),
@@ -229,9 +245,10 @@ export default function Dashboard() {
           </div>
 
           {[
-            { c: COLORS.low, t: "Low inequality (Score 0)" },
-            { c: COLORS.medium, t: "Medium inequality (Score 1)" },
-            { c: COLORS.high, t: "High inequality (Score 2)" },
+            { c: "#006400", t: "Excellent (≥ 0.75)" },
+            { c: "#FFD700", t: "Moderate (≥ 0.50)" },
+            { c: "#FF8C00", t: "Poor (≥ 0.25)" },
+            { c: "#8B0000", t: "Critical (< 0.25)" },
           ].map((l, i) => (
             <div key={i} style={{ display: "flex", gap: 10, marginBottom: 8 }}>
               <div

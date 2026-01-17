@@ -9,8 +9,10 @@ const connectionParams = {
 
 const connectDatabase = () => {
   if (!dbUrl) {
-    console.error("DB_URL missing in environment. Set it in config.env");
-    process.exit(1);
+    console.warn(
+      "DB_URL missing in environment. Skipping DB connection for now.",
+    );
+    return; // Allow server to start without DB for ML testing
   }
   mongoose
     .connect(dbUrl, connectionParams)
