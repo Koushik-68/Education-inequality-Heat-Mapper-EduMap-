@@ -383,7 +383,7 @@ export default function StateSummary() {
             What-if Simulation (Selected District)
           </h3>
 
-          {/* Status panel: baseline vs current */}
+          {/* Baseline vs Simulated panel with % change and status transition */}
           {(() => {
             const key = canonicalName(selectedDistrict);
             const baseEII =
@@ -394,55 +394,181 @@ export default function StateSummary() {
               typeof baseEII === "number" ? getLabel(baseEII) : "—";
             const currLabel =
               typeof currEII === "number" ? getLabel(currEII) : "—";
-            const changed =
-              typeof baseEII === "number" && typeof currEII === "number"
-                ? baseLabel !== currLabel
-                : false;
+
+            const hasNumbers =
+              typeof baseEII === "number" && typeof currEII === "number";
+            const deltaVal = hasNumbers ? currEII - baseEII : 0;
+            const pctVal =
+              hasNumbers && baseEII !== 0 ? (deltaVal / baseEII) * 100 : null;
+            const worsened = hasNumbers && deltaVal > 0; // higher EII = more inequality
+            const improved = hasNumbers && deltaVal < 0;
+            const changedLabel = hasNumbers ? baseLabel !== currLabel : false;
+
+            const chipColor = worsened
+              ? "#ef4444"
+              : improved
+                ? "#2563eb"
+                : "#6B7280";
+            const chipText = worsened
+              ? "Inequality increased"
+              : improved
+                ? "Inequality reduced"
+                : "No change";
+
             return (
               <div
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 10,
                   background: COLORS.bg,
                   border: `1px solid ${COLORS.border}`,
                   borderRadius: 8,
-                  padding: 10,
+                  padding: 12,
                   marginBottom: 12,
                 }}
               >
-                <div>
-                  <div style={{ fontSize: 12, color: COLORS.muted }}>
-                    Baseline
-                  </div>
-                  <div style={{ fontWeight: 700, color: COLORS.text }}>
-                    {typeof baseEII === "number" ? baseEII.toFixed(3) : "—"}
-                  </div>
-                  <div style={{ fontSize: 12, color: COLORS.muted }}>
-                    {baseLabel}
-                  </div>
-                </div>
-                <div>
-                  <div style={{ fontSize: 12, color: COLORS.muted }}>
-                    Current
-                  </div>
-                  <div style={{ fontWeight: 700, color: COLORS.text }}>
-                    {typeof currEII === "number" ? currEII.toFixed(3) : "—"}
-                  </div>
-                  <div style={{ fontSize: 12, color: COLORS.muted }}>
-                    {currLabel}
-                  </div>
-                </div>
                 <div
                   style={{
-                    gridColumn: "1 / span 2",
-                    fontSize: 12,
-                    color: COLORS.muted,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 8,
                   }}
                 >
-                  {changed
-                    ? `Color bin changed: ${baseLabel} → ${currLabel}`
-                    : "Note: small changes may stay within the same color bin."}
+                  <div style={{ fontWeight: 700, color: COLORS.text }}>
+                    Baseline vs Simulated
+                  </div>
+                  {hasNumbers && (
+                    <span
+                      style={{
+                        display: "inline-block",
+                        padding: "4px 8px",
+                        borderRadius: 999,
+                        background: chipColor,
+                        color: "#fff",
+                        fontSize: 12,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {chipText}
+                    </span>
+                  )}
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: 10,
+                    marginBottom: 8,
+                  }}
+                >
+                  <div
+                    style={{
+                      border: `1px solid ${COLORS.border}`,
+                      borderRadius: 8,
+                      padding: 10,
+                      background: "#fff",
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: COLORS.muted }}>
+                      Baseline EII
+                    </div>
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        color: COLORS.text,
+                        fontSize: 18,
+                      }}
+                    >
+                      {typeof baseEII === "number" ? baseEII.toFixed(3) : "—"}
+                    </div>
+                    <div style={{ fontSize: 12, color: COLORS.muted }}>
+                      {baseLabel}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      border: `1px solid ${COLORS.border}`,
+                      borderRadius: 8,
+                      padding: 10,
+                      background: "#fff",
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: COLORS.muted }}>
+                      Simulated EII
+                    </div>
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        color: COLORS.text,
+                        fontSize: 18,
+                      }}
+                    >
+                      {typeof currEII === "number" ? currEII.toFixed(3) : "—"}
+                    </div>
+                    <div style={{ fontSize: 12, color: COLORS.muted }}>
+                      {currLabel}
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: 10,
+                  }}
+                >
+                  <div
+                    style={{
+                      border: `1px solid ${COLORS.border}`,
+                      borderRadius: 8,
+                      padding: 10,
+                      background: "#fff",
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: COLORS.muted }}>
+                      Change
+                    </div>
+                    <div style={{ fontWeight: 700, color: COLORS.text }}>
+                      {hasNumbers
+                        ? `${deltaVal.toFixed(3)} (${pctVal !== null ? pctVal.toFixed(1) + "%" : "—"})`
+                        : "—"}
+                    </div>
+                    <div style={{ fontSize: 12, color: COLORS.muted }}>
+                      {hasNumbers
+                        ? worsened
+                          ? "Higher inequality"
+                          : improved
+                            ? "Lower inequality"
+                            : "No change"
+                        : "—"}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      border: `1px solid ${COLORS.border}`,
+                      borderRadius: 8,
+                      padding: 10,
+                      background: "#fff",
+                    }}
+                  >
+                    <div style={{ fontSize: 12, color: COLORS.muted }}>
+                      Status
+                    </div>
+                    <div style={{ fontWeight: 700, color: COLORS.text }}>
+                      {changedLabel ? `${baseLabel} → ${currLabel}` : baseLabel}
+                    </div>
+                    <div style={{ fontSize: 12, color: COLORS.muted }}>
+                      {changedLabel ? "Color bin changed" : "Bin unchanged"}
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style={{ fontSize: 11, color: COLORS.muted, marginTop: 8 }}
+                >
+                  Tip: Lower EII indicates lower inequality. Adjust sliders,
+                  then press "Predict & Update Map".
                 </div>
               </div>
             );
