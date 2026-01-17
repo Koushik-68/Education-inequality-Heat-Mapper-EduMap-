@@ -50,9 +50,6 @@ function canonicalName(name) {
   return NAME_MAP[trimmed] || trimmed;
 }
 
-/* =======================
-   COLOR SCALE (EXACT)
-======================= */
 function getColor(val) {
   if (val >= 0.75) return "#006400"; // Excellent (Dark Green)
   if (val >= 0.5) return "#FFD700"; // Moderate (Yellow)
@@ -281,6 +278,7 @@ export default function StateSummary() {
               {geo && (
                 <>
                   <GeoJSON
+                    key={selectedDistrict}
                     data={geo}
                     style={(feature) => {
                       const name =
@@ -288,15 +286,18 @@ export default function StateSummary() {
                         feature.properties?.DISTRICT ||
                         feature.properties?.name;
                       const key = canonicalName(name);
+                      const isSelected =
+                        canonicalName(selectedDistrict) === key;
                       const eii =
                         districtPred[key]?.inequality_index ??
                         districtPred[key]?.EII ??
                         0;
                       return {
                         fillColor: getColor(eii),
-                        color: "#333",
-                        weight: 1,
-                        fillOpacity: 0.85,
+                        color: isSelected ? "#2563eb" : "#333",
+                        weight: isSelected ? 5 : 1,
+                        fillOpacity: isSelected ? 0.9 : 0.85,
+                        className: isSelected ? "selected-district" : undefined,
                       };
                     }}
                     onEachFeature={(feature, layer) => {
@@ -335,6 +336,21 @@ export default function StateSummary() {
                          Inequality Index: ${eii}<br/>
                          ${updatedBadge}Status: ${getLabel(eii)} ${updatedInfo}${details}`,
                       );
+
+                      // Click to select and emphasize the district
+                      layer.on("click", () => {
+                        setSelectedDistrict(name);
+                        try {
+                          layer.bringToFront();
+                        } catch (e) {}
+                      });
+
+                      // Ensure currently selected district sits above others
+                      if (canonicalName(selectedDistrict) === key) {
+                        try {
+                          layer.bringToFront();
+                        } catch (e) {}
+                      }
                     }}
                   />
                   <FitToBounds geo={geo} />
