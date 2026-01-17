@@ -9,7 +9,7 @@ import { feature as topoFeature } from "topojson-client";
    Config
 ------------------------- */
 const GEOJSON_URL = "/api/karnataka-districts.topojson";
-const DATA_URL = "/data/data.json";
+// Using ML baseline predictions like StateSummary
 
 const GOV_NAVY = "#0B3D91";
 const DARK_GREY = "#263244";
@@ -18,8 +18,8 @@ const CARD_BG = "rgba(255,255,255,0.96)";
 
 const COLORS = {
   low: "#16a34a",
-  medium: "#f59e0b",
-  high: "#e11d48",
+  medium: "#FF8C00",
+  high: "#8B0000",
   default: "#f8fafc",
 };
 
@@ -30,12 +30,46 @@ const getColorForScore = (score) => {
   return COLORS.default;
 };
 
-// RVCE color scale (simplified 4 bins) for EII (0..1)
+// RVCE color scale (simplified 4 bins) for EII (0..1) — same as StateSummary
 const getColor = (val) => {
   if (val >= 0.75) return "#006400"; // Excellent (Dark Green)
   if (val >= 0.5) return "#FFD700"; // Moderate (Yellow)
   if (val >= 0.25) return "#FF8C00"; // Poor (Orange)
   return "#8B0000"; // Critical (Red)
+};
+
+const getLabel = (val) => {
+  if (val >= 0.75) return "Excellent";
+  if (val >= 0.5) return "Moderate";
+  if (val >= 0.25) return "Poor";
+  return "Critical";
+};
+
+// Name normalization — mirror StateSummary
+const NAME_MAP = {
+  Bangalore: "Bengaluru Urban",
+  "Bangalore Urban": "Bengaluru Urban",
+  "Bangalore Rural": "Bengaluru Rural",
+  Mysore: "Mysuru",
+  Bellary: "Ballari",
+  Bijapur: "Vijayapura",
+  Gulbarga: "Kalaburagi",
+  Shimoga: "Shivamogga",
+  Chikmagalur: "Chikkamagaluru",
+  "South Kanara": "Dakshina Kannada",
+  "North Kanara": "Uttara Kannada",
+  Belgaum: "Belagavi",
+  Dharwar: "Dharwad",
+  Davangere: "Davanagere",
+  Tumkur: "Tumakuru",
+  Chikballapur: "Chikkaballapur",
+  Ramanagaram: "Ramanagara",
+};
+
+const canonicalName = (name) => {
+  if (!name) return "";
+  const trimmed = String(name).trim();
+  return NAME_MAP[trimmed] || trimmed;
 };
 
 /* -------------------------
@@ -116,9 +150,9 @@ export default function Dashboard() {
 
     const fetchAll = async () => {
       try {
-        const [gRes, dRes] = await Promise.all([
+        const [gRes, mlRes] = await Promise.all([
           axios.get(GEOJSON_URL),
-          axios.get(DATA_URL),
+          axios.post("/api/ml/predict-district-wise"),
         ]);
 
         if (cancelled) return;
@@ -128,7 +162,14 @@ export default function Dashboard() {
         const geoJson = topoFeature(topo, topo.objects[objectKey]);
 
         setGeo(geoJson);
-        setDistrictData(dRes.data?.districts || {});
+
+        const predsRaw = mlRes.data?.district_predictions || {};
+        const preds = Object.keys(predsRaw).reduce((acc, k) => {
+          const key = canonicalName(k);
+          acc[key] = predsRaw[k];
+          return acc;
+        }, {});
+        setDistrictData(preds);
         setError(null);
       } catch (err) {
         console.error(err);
@@ -165,15 +206,14 @@ export default function Dashboard() {
   ------------------------- */
   const districtStyle = (feature) => {
     const name = feature?.properties?.district;
-    const score = districtData[name]?.score ?? -1;
-    const eii = districtData[name]?.EII;
+    const key = canonicalName(name);
+    const eii = districtData[key]?.inequality_index ?? districtData[key]?.EII;
 
     return {
-      fillColor:
-        typeof eii === "number" ? getColor(eii) : getColorForScore(score),
-      color: "#cbd5e1",
-      weight: 1,
-      fillOpacity: 0.95,
+      fillColor: typeof eii === "number" ? getColor(eii) : COLORS.default,
+      color: "#333", // match StateSummary border
+      weight: 1, // match StateSummary weight
+      fillOpacity: 0.85, // match StateSummary opacity
     };
   };
 
@@ -206,23 +246,20 @@ export default function Dashboard() {
                 style={districtStyle}
                 onEachFeature={(feature, layer) => {
                   const name = feature.properties?.district;
-                  const score = districtData[name]?.score;
-                  const eii = districtData[name]?.EII;
+                  const key = canonicalName(name);
+                  const eii =
+                    districtData[key]?.inequality_index ??
+                    districtData[key]?.EII;
 
                   const popupText =
                     typeof eii === "number"
-                      ? `<b>${name}</b><br/>EII: ${eii}`
-                      : `<b>${name}</b><br/>Inequality Score: ${
-                          score ?? "No data"
-                        }`;
+                      ? `<b>${name}</b><br/>EII: ${eii.toFixed(3)}<br/>Status: ${getLabel(eii)}`
+                      : `<b>${name}</b><br/>EII: No data`;
 
                   layer.bindPopup(popupText);
 
                   layer.on({
                     click: () => setDistrictBounds(layer.getBounds()),
-                    mouseover: (e) =>
-                      e.target.setStyle({ weight: 2, color: GOV_NAVY }),
-                    mouseout: (e) => e.target.setStyle(districtStyle(feature)),
                   });
                 }}
               />

@@ -1,5 +1,7 @@
 // src/pages/StateSummary.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import axios from "axios";
 import { feature as topoFeature } from "topojson-client";
 import {
@@ -133,6 +135,8 @@ export default function StateSummary() {
   const [explLoading, setExplLoading] = useState(false);
   const [explError, setExplError] = useState("");
   const [loading, setLoading] = useState(true);
+  const reportRef = useRef(null);
+  const [showReport, setShowReport] = useState(false);
 
   /* Load data */
   useEffect(() => {
@@ -207,6 +211,50 @@ export default function StateSummary() {
     setMlInput(defaultInput);
     setExpl(null);
     setExplError("");
+  };
+
+  const downloadPDF = async () => {
+    try {
+      setShowReport(true);
+      // Wait a tick for the report DOM to render
+      await new Promise((r) => setTimeout(r, 60));
+
+      if (!reportRef.current) return;
+      const canvas = await html2canvas(reportRef.current, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        useCORS: true,
+      });
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const imgWidthPx = canvas.width;
+      const imgHeightPx = canvas.height;
+      const ratio = imgHeightPx / imgWidthPx;
+      const imgHeightMm = pageWidth * ratio;
+
+      pdf.addImage(imgData, "PNG", 0, 0, pageWidth, imgHeightMm);
+
+      // Watermark
+      pdf.setTextColor(200, 200, 200);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(60);
+      pdf.text("EduMap", pageWidth / 2, pageHeight / 2, {
+        angle: 45,
+        align: "center",
+      });
+
+      const key = canonicalName(selectedDistrict);
+      const fileName = `EduMap_Report_${key || "District"}.pdf`;
+      pdf.save(fileName);
+    } catch (e) {
+      console.error("PDF generation failed", e);
+    } finally {
+      setShowReport(false);
+    }
   };
 
   if (loading) return <div style={{ padding: 24 }}>Loading…</div>;
@@ -671,6 +719,20 @@ export default function StateSummary() {
               Predict & Update Map
             </button>
             <button
+              onClick={downloadPDF}
+              style={{
+                padding: "10px 14px",
+                background: "#0B3D91",
+                color: "#fff",
+                border: "none",
+                borderRadius: 8,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Download PDF
+            </button>
+            <button
               onClick={async () => {
                 try {
                   setExplLoading(true);
@@ -811,6 +873,255 @@ export default function StateSummary() {
           )}
         </div>
       </div>
+
+      {/* Hidden PDF Report canvas */}
+      {showReport &&
+        (() => {
+          const key = canonicalName(selectedDistrict);
+          const baseEII =
+            baselinePred[key]?.inequality_index ?? baselinePred[key]?.EII;
+          const currEII =
+            districtPred[key]?.inequality_index ?? districtPred[key]?.EII;
+          const baseLabel =
+            typeof baseEII === "number" ? getLabel(baseEII) : "—";
+          const currLabel =
+            typeof currEII === "number" ? getLabel(currEII) : "—";
+          const hasNumbers =
+            typeof baseEII === "number" && typeof currEII === "number";
+          const deltaVal = hasNumbers ? currEII - baseEII : 0;
+          const pctVal =
+            hasNumbers && baseEII !== 0 ? (deltaVal / baseEII) * 100 : null;
+          const legend = [
+            { label: "Excellent", color: "#006400" },
+            { label: "Moderate", color: "#FFD700" },
+            { label: "Poor", color: "#FF8C00" },
+            { label: "Critical", color: "#8B0000" },
+          ];
+          return (
+            <div
+              ref={reportRef}
+              style={{
+                position: "fixed",
+                left: -10000,
+                top: -10000,
+                width: 800,
+                background: "#fff",
+                color: "#111827",
+                fontFamily: "Inter, system-ui, Arial, sans-serif",
+                padding: 24,
+                border: "1px solid #e5e7eb",
+                borderRadius: 12,
+                boxShadow: "0 6px 24px rgba(0,0,0,0.08)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 12,
+                }}
+              >
+                <div>
+                  <div
+                    style={{ fontSize: 20, fontWeight: 800, color: "#0B3D91" }}
+                  >
+                    EduMap — District Report
+                  </div>
+                  <div style={{ fontSize: 14, color: "#6B7280" }}>
+                    Educational Inequality Index (EII)
+                  </div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontWeight: 700 }}>{selectedDistrict}</div>
+                  <div style={{ fontSize: 12, color: "#6B7280" }}>
+                    {new Date().toLocaleString()}
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1.2fr 0.8fr",
+                  gap: 16,
+                }}
+              >
+                {/* Left: Baseline vs Simulated */}
+                <div
+                  style={{
+                    border: "1px solid #e5e7eb",
+                    borderRadius: 10,
+                    padding: 16,
+                  }}
+                >
+                  <div style={{ fontWeight: 700, marginBottom: 10 }}>
+                    Baseline vs Simulated
+                  </div>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 12,
+                    }}
+                  >
+                    <div
+                      style={{
+                        background: "#f9fafb",
+                        borderRadius: 8,
+                        padding: 12,
+                      }}
+                    >
+                      <div style={{ fontSize: 12, color: "#6B7280" }}>
+                        Baseline EII
+                      </div>
+                      <div style={{ fontSize: 22, fontWeight: 800 }}>
+                        {typeof baseEII === "number" ? baseEII.toFixed(3) : "—"}
+                      </div>
+                      <div style={{ fontSize: 12, color: "#6B7280" }}>
+                        {baseLabel}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        background: "#f9fafb",
+                        borderRadius: 8,
+                        padding: 12,
+                      }}
+                    >
+                      <div style={{ fontSize: 12, color: "#6B7280" }}>
+                        Simulated EII
+                      </div>
+                      <div style={{ fontSize: 22, fontWeight: 800 }}>
+                        {typeof currEII === "number" ? currEII.toFixed(3) : "—"}
+                      </div>
+                      <div style={{ fontSize: 12, color: "#6B7280" }}>
+                        {currLabel}
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 12,
+                      marginTop: 12,
+                    }}
+                  >
+                    <div
+                      style={{
+                        background: "#f9fafb",
+                        borderRadius: 8,
+                        padding: 12,
+                      }}
+                    >
+                      <div style={{ fontSize: 12, color: "#6B7280" }}>
+                        Change
+                      </div>
+                      <div style={{ fontWeight: 800 }}>
+                        {hasNumbers
+                          ? `${deltaVal.toFixed(3)} (${pctVal !== null ? pctVal.toFixed(1) + "%" : "—"})`
+                          : "—"}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        background: "#f9fafb",
+                        borderRadius: 8,
+                        padding: 12,
+                      }}
+                    >
+                      <div style={{ fontSize: 12, color: "#6B7280" }}>
+                        Status
+                      </div>
+                      <div style={{ fontWeight: 800 }}>
+                        {typeof baseEII === "number" &&
+                        typeof currEII === "number"
+                          ? `${baseLabel} → ${currLabel}`
+                          : baseLabel}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Sliders used */}
+                <div
+                  style={{
+                    border: "1px solid #e5e7eb",
+                    borderRadius: 10,
+                    padding: 16,
+                  }}
+                >
+                  <div style={{ fontWeight: 700, marginBottom: 10 }}>
+                    Sliders Used
+                  </div>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr",
+                      gap: 8,
+                      fontSize: 13,
+                    }}
+                  >
+                    <div>
+                      <strong>Population (lakhs):</strong>{" "}
+                      {mlInput.population_lakhs.toFixed(1)}
+                    </div>
+                    <div>
+                      <strong>Literacy %:</strong>{" "}
+                      {mlInput.literacy_rate.toFixed(1)}
+                    </div>
+                    <div>
+                      <strong>Pupil-Teacher Ratio:</strong>{" "}
+                      {mlInput.pupil_teacher_ratio.toFixed(1)}
+                    </div>
+                    <div>
+                      <strong>Teacher Difference:</strong>{" "}
+                      {mlInput.teacher_difference.toFixed(1)}
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 14 }}>
+                    <div style={{ fontWeight: 700, marginBottom: 6 }}>
+                      Color Legend
+                    </div>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: 8,
+                      }}
+                    >
+                      {legend.map((l) => (
+                        <div
+                          key={l.label}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: 16,
+                              height: 16,
+                              background: l.color,
+                              borderRadius: 4,
+                            }}
+                          />
+                          <div style={{ fontSize: 12 }}>{l.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ fontSize: 11, color: "#6B7280", marginTop: 14 }}>
+                Generated by EduMap • Lower EII indicates lower inequality
+              </div>
+            </div>
+          );
+        })()}
     </div>
   );
 }
