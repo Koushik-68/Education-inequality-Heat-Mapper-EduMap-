@@ -416,6 +416,161 @@ export default function StateSummary() {
               ))} */}
             </MapContainer>
           </div>
+
+          {/* Explainability panel moved below the map and enlarged */}
+          {explLoading && (
+            <div
+              style={{
+                marginTop: 14,
+                fontSize: 14,
+                color: COLORS.muted,
+              }}
+            >
+              Explaining prediction…
+            </div>
+          )}
+          {explError && (
+            <div
+              style={{
+                marginTop: 14,
+                fontSize: 13,
+                color: "#b91c1c",
+                background: "#fee2e2",
+                border: "1px solid #fecaca",
+                borderRadius: 12,
+                padding: 12,
+              }}
+            >
+              {explError}
+            </div>
+          )}
+          {expl && expl.contributions && (
+            <div
+              style={{
+                marginTop: 16,
+                background: COLORS.bg,
+                border: `1px solid ${COLORS.border}`,
+                borderRadius: 12,
+                padding: 16,
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 8,
+                }}
+              >
+                <div
+                  style={{ fontWeight: 800, color: COLORS.text, fontSize: 18 }}
+                >
+                  Explain Prediction (SHAP)
+                </div>
+                {typeof expl.prediction === "number" && (
+                  <span
+                    style={{
+                      display: "inline-block",
+                      padding: "6px 10px",
+                      borderRadius: 999,
+                      background: "#111827",
+                      color: "#fff",
+                      fontSize: 12,
+                      fontWeight: 700,
+                    }}
+                  >
+                    EII: {expl.prediction.toFixed(3)}
+                  </span>
+                )}
+              </div>
+              <div
+                style={{ fontSize: 12, color: COLORS.muted, marginBottom: 10 }}
+              >
+                Red increases inequality; Blue reduces inequality.
+              </div>
+              {(() => {
+                const entries = Object.entries(expl.contributions);
+                if (!entries.length) return null;
+                const maxAbs =
+                  Math.max(
+                    ...entries.map(([, v]) => Math.abs(Number(v) || 0)),
+                  ) || 1;
+                return entries.map(([k, v]) => {
+                  const val = Number(v) || 0;
+                  const pct = Math.min(
+                    100,
+                    Math.max(6, Math.round((Math.abs(val) / maxAbs) * 100)),
+                  );
+                  const isIncrease = val >= 0;
+                  const barColor = isIncrease ? "#ef4444" : "#2563eb";
+                  const label = k
+                    .replace(/_/g, " ")
+                    .replace(/\b\w/g, (c) => c.toUpperCase());
+                  return (
+                    <div key={k} style={{ marginBottom: 10 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          marginBottom: 6,
+                          alignItems: "center",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: 13,
+                            color: COLORS.text,
+                            fontWeight: 600,
+                          }}
+                        >
+                          {label}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: COLORS.muted,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 6,
+                          }}
+                        >
+                          <span
+                            style={{
+                              display: "inline-block",
+                              padding: "2px 8px",
+                              borderRadius: 999,
+                              background: barColor,
+                              color: "#fff",
+                              fontWeight: 700,
+                            }}
+                          >
+                            {isIncrease ? "↑" : "↓"}
+                          </span>
+                          {val.toFixed(3)}
+                        </span>
+                      </div>
+                      <div
+                        style={{
+                          height: 12,
+                          background: "#e5e7eb",
+                          borderRadius: 8,
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: `${pct}%`,
+                            height: "100%",
+                            background: barColor,
+                            borderRadius: 8,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          )}
         </div>
 
         {/* CONTROLS PANEL (RIGHT SIDE) */}
@@ -448,19 +603,20 @@ export default function StateSummary() {
             const deltaVal = hasNumbers ? currEII - baseEII : 0;
             const pctVal =
               hasNumbers && baseEII !== 0 ? (deltaVal / baseEII) * 100 : null;
-            const worsened = hasNumbers && deltaVal > 0; // higher EII = more inequality
-            const improved = hasNumbers && deltaVal < 0;
+            // Interpret EII: higher is better (moving toward Excellent)
+            const improved = hasNumbers && deltaVal > 0;
+            const worsened = hasNumbers && deltaVal < 0;
             const changedLabel = hasNumbers ? baseLabel !== currLabel : false;
 
-            const chipColor = worsened
-              ? "#ef4444"
-              : improved
-                ? "#2563eb"
-                : "#6B7280";
-            const chipText = worsened
-              ? "Inequality increased"
-              : improved
-                ? "Inequality reduced"
+            const chipColor = improved
+              ? "#16a34a" // green for improvement
+              : worsened
+                ? "#ef4444" // red for worsening
+                : "#6B7280"; // neutral
+            const chipText = improved
+              ? "Status improved"
+              : worsened
+                ? "Status worsened"
                 : "No change";
 
             return (
@@ -584,10 +740,10 @@ export default function StateSummary() {
                     </div>
                     <div style={{ fontSize: 12, color: COLORS.muted }}>
                       {hasNumbers
-                        ? worsened
-                          ? "Higher inequality"
-                          : improved
-                            ? "Lower inequality"
+                        ? improved
+                          ? "Improved"
+                          : worsened
+                            ? "Worsened"
                             : "No change"
                         : "—"}
                     </div>
@@ -615,7 +771,7 @@ export default function StateSummary() {
                 <div
                   style={{ fontSize: 11, color: COLORS.muted, marginTop: 8 }}
                 >
-                  Tip: Lower EII indicates lower inequality. Adjust sliders,
+                  Tip: Higher EII moves status toward Excellent. Adjust sliders,
                   then press "Predict & Update Map".
                 </div>
               </div>
@@ -695,6 +851,7 @@ export default function StateSummary() {
                   max={max}
                   step={step}
                   value={mlInput[key]}
+                  style={{ width: "100%" }}
                   onChange={(e) =>
                     setMlInput((p) => ({ ...p, [key]: Number(e.target.value) }))
                   }
@@ -703,7 +860,15 @@ export default function StateSummary() {
             ))}
           </div>
 
-          <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+          {/* Buttons in 2x2 grid */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 10,
+              marginTop: 12,
+            }}
+          >
             <button
               onClick={runPrediction}
               style={{
@@ -714,6 +879,7 @@ export default function StateSummary() {
                 borderRadius: 8,
                 fontWeight: 600,
                 cursor: "pointer",
+                width: "100%",
               }}
             >
               Predict & Update Map
@@ -728,6 +894,7 @@ export default function StateSummary() {
                 borderRadius: 8,
                 fontWeight: 600,
                 cursor: "pointer",
+                width: "100%",
               }}
             >
               Download PDF
@@ -754,6 +921,7 @@ export default function StateSummary() {
                 borderRadius: 8,
                 fontWeight: 600,
                 cursor: "pointer",
+                width: "100%",
               }}
             >
               Explain Prediction
@@ -768,109 +936,12 @@ export default function StateSummary() {
                 borderRadius: 8,
                 fontWeight: 600,
                 cursor: "pointer",
+                width: "100%",
               }}
             >
               Reset
             </button>
           </div>
-
-          {/* Explainability panel */}
-          {explLoading && (
-            <div style={{ marginTop: 12, fontSize: 12, color: COLORS.muted }}>
-              Explaining…
-            </div>
-          )}
-          {explError && (
-            <div
-              style={{
-                marginTop: 12,
-                fontSize: 12,
-                color: "#b91c1c",
-                background: "#fee2e2",
-                border: "1px solid #fecaca",
-                borderRadius: 8,
-                padding: 8,
-              }}
-            >
-              {explError}
-            </div>
-          )}
-          {expl && expl.contributions && (
-            <div
-              style={{
-                marginTop: 14,
-                background: COLORS.bg,
-                border: `1px solid ${COLORS.border}`,
-                borderRadius: 8,
-                padding: 10,
-              }}
-            >
-              <div
-                style={{ fontWeight: 700, color: COLORS.text, marginBottom: 6 }}
-              >
-                Why this inequality?
-              </div>
-              <div
-                style={{ fontSize: 12, color: COLORS.muted, marginBottom: 8 }}
-              >
-                Red increases inequality; Blue reduces inequality.
-              </div>
-              {(() => {
-                const entries = Object.entries(expl.contributions);
-                if (!entries.length) return null;
-                const maxAbs =
-                  Math.max(
-                    ...entries.map(([, v]) => Math.abs(Number(v) || 0)),
-                  ) || 1;
-                return entries.map(([k, v]) => {
-                  const val = Number(v) || 0;
-                  const pct = Math.min(
-                    100,
-                    Math.max(5, Math.round((Math.abs(val) / maxAbs) * 100)),
-                  );
-                  const isIncrease = val >= 0;
-                  const barColor = isIncrease ? "#ef4444" : "#2563eb";
-                  const label = k
-                    .replace(/_/g, " ")
-                    .replace(/\b\w/g, (c) => c.toUpperCase());
-                  return (
-                    <div key={k} style={{ marginBottom: 8 }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          marginBottom: 4,
-                        }}
-                      >
-                        <span style={{ fontSize: 12, color: COLORS.text }}>
-                          {label}
-                        </span>
-                        <span style={{ fontSize: 12, color: COLORS.muted }}>
-                          {val.toFixed(3)} {isIncrease ? "↑" : "↓"}
-                        </span>
-                      </div>
-                      <div
-                        style={{
-                          height: 8,
-                          background: "#e5e7eb",
-                          borderRadius: 6,
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: `${pct}%`,
-                            height: "100%",
-                            background: barColor,
-                            borderRadius: 6,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                });
-              })()}
-            </div>
-          )}
         </div>
       </div>
 
